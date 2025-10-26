@@ -74,8 +74,6 @@ public class HighwayVisualizer implements ClientTickEvents.EndTick, Renderable {
         }
     }
 
-    final KeyBinding keybind;
-
     public String SOURCE_URL = "https://www.desmos.com/calc-states/production/version/siw620fvnu/5bf8ddb0-abfc-11f0-9960-3d9cc4158144?cb20221031=1";
 
     public ArrayList<Highway> HIGHWAYS = new ArrayList<>();
@@ -83,7 +81,6 @@ public class HighwayVisualizer implements ClientTickEvents.EndTick, Renderable {
     public long highlightedHighwayNameAt = -1L;
 
     public HighwayVisualizer() {
-        keybind = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.hello_fabric.toggle_highway_visualizer", InputUtil.Type.KEYSYM, -1, "category.hello_fabric.keybindings"));
         loadInBackground();
     }
 

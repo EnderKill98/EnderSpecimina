@@ -8,8 +8,9 @@ group   = project.maven_group
 repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
-    maven { url = 'https://maven.isxander.dev/releases' }     // YACL
-    maven { url = 'https://maven.terraformersmc.com/' }        // ModMenu
+    // If you add optional mods later (ModMenu, YACL), add their repos here.
+    // maven { url = 'https://maven.terraformersmc.com/' } // ModMenu
+    // maven { url = 'https://maven.isxander.dev/releases' } // YACL
 }
 
 dependencies {
@@ -17,10 +18,6 @@ dependencies {
     mappings  "net.fabricmc:yarn:${yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
-
-    // Add missing libs:
-    modImplementation "dev.isxander:yet-another-config-lib:3.6.6+1.21.5-fabric"
-    modCompileOnly  "com.terraformersmc:modmenu:14.0.0-rc.2"   // optional at runtime
 }
 
 java {
@@ -33,18 +30,23 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 processResources {
-    inputs.property "version", project.version
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
-}
+    // Collect every placeholder your fabric.mod.json might reference.
+    // Add/remove keys here if you introduce new placeholders later.
+    def props = [
+        version            : version,
+        loader_version     : loader_version,
+        minecraft_version  : minecraft_version,
+        fabric_api_version : fabric_api_version,
+        archives_base_name : archives_base_name,
+        mod_version        : mod_version,
+        java_version       : java_version,
+        maven_group        : maven_group
+    ]
 
-// Temporarily exclude Xaero-dependent mixins (no Maven jars on CI)
-sourceSets {
-    main {
-        java {
-            exclude 'me/enderkill98/enderspecimina/mixin/mods/xaerominimap/**'
-            exclude 'me/enderkill98/enderspecimina/mixin/mods/xaeroworldmap/**'
-        }
+    // Tell Gradle these affect task inputs (avoids the Gradle 10 deprecation warning).
+    inputs.properties(props)
+
+    filesMatching("fabric.mod.json") {
+        expand(props)
     }
 }

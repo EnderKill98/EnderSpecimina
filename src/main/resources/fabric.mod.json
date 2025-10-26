@@ -2,35 +2,41 @@
   "schemaVersion": 1,
   "id": "enderspecimina",
   "version": "${version}",
-  "name": "EnderSpecimina",
-  "description": "Public stuff I don't wanna make separate mods for. Most is 2b2t focused.",
-  "authors": [],
-  "contact": {},
+  "name": "Ender Specimina",
+  "description": "Client-side utilities and integrations for 1.21.5.",
+  "authors": ["enderkill98"],
+  "contact": {
+    "sources": "https://github.com/your/repo"
+  },
   "license": "MIT",
-  "icon": "assets/enderspecimina/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
-      "me.enderkill98.enderspecimina.Mod"
+      "me.enderkill98.enderspecimina.EnderSpeciminaClient"
     ],
     "modmenu": [
       "me.enderkill98.enderspecimina.ModMenuIntegration"
     ]
   },
-  "mixins": [
-    "enderspecimina.mixins.json"
-  ],
-  "accessWidener": "enderspecimina.accesswidener",
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "minecraft": ">=${minecraft_version}",
-    "fabric-api": "*"
+    "minecraft":    "~${minecraft_version}",
+    "fabric-api":   ">=${fabric_api_version}"
   },
-  "conflicts": {
-    "fix2b2tghostitems": "*"
-  },
-  "recommends": {
+  "suggests": {
+    "modmenu": "*",
+    "yacl": "*",
     "xaerominimap": "*",
     "xaeroworldmap": "*"
-  }
+  },
+  "custom": {
+    "java": "${java_version}",
+    "maven_group": "${maven_group}",
+    "archives_base_name": "${archives_base_name}"
+  },
+  "mixins": [
+    "enderspecimina.mixins.json",
+    "enderspecimina.xaerominimap.mixins.json",
+    "enderspecimina.xaeroworldmap.mixins.json"
+  ]
 }

@@ -27,9 +27,9 @@ public abstract class ScrollZoomCameraMixin {
             if (Mod.scrollZoom.previousTickZoomStep == 1) {
                 previousFactor = 0;
             }
-            // 1.21.5: use MinecraftClient.getInstance().getTickDelta()
+            // 1.21.5: boolean param removed; use RenderTickCounter#getTickDelta()
             interpolatedExtraDist = (float) MathHelper.lerp(
-                MinecraftClient.getInstance().getTickDelta(),
+                MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(),
                 -previousFactor,
                 -Mod.scrollZoom.getZoomMultiplierFactor()
             );

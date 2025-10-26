@@ -27,17 +27,21 @@ public abstract class ScrollZoomCameraMixin {
             if (Mod.scrollZoom.previousTickZoomStep == 1) {
                 previousFactor = 0;
             }
-            // 1.21.5: boolean param removed; use RenderTickCounter#getTickDelta()
+            // 1.21.5: use getTickProgress(ignoreFreeze) instead of getTickDelta(...)
+            float tickProgress = MinecraftClient.getInstance()
+                    .getRenderTickCounter()
+                    .getTickProgress(true);
+
             interpolatedExtraDist = (float) MathHelper.lerp(
-                MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(),
-                -previousFactor,
-                -Mod.scrollZoom.getZoomMultiplierFactor()
+                    tickProgress,
+                    -previousFactor,
+                    -Mod.scrollZoom.getZoomMultiplierFactor()
             );
         } else {
             interpolatedExtraDist = (float) -Mod.scrollZoom.getZoomMultiplierFactor();
         }
 
-        // Ignore walls. Huge distances could cause issues anyway
+        // Ignore walls; just adjust the desired distance
         return desiredCameraDistance + interpolatedExtraDist;
     }
 }

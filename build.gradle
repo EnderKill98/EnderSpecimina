@@ -8,16 +8,40 @@ group   = project.maven_group
 repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
-    // If you add optional mods later (ModMenu, YACL), add their repos here.
-    // maven { url = 'https://maven.terraformersmc.com/' } // ModMenu
-    // maven { url = 'https://maven.isxander.dev/releases' } // YACL
+
+    // Optional mods repos
+    maven { url = 'https://maven.terraformersmc.com/releases/' }  // ModMenu
+    maven { url = 'https://maven.isxander.dev/releases' }         // YACL
+    maven { url = 'https://api.modrinth.com/maven' }              // Modrinth (Xaero’s)
+    maven { url = 'https://cursemaven.com' }                      // Fallback for Xaero’s
 }
 
 dependencies {
+    // Core
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings  "net.fabricmc:yarn:${yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+    // ── Optional integrations (compileOnly so we can compile against them if present) ──
+    // ModMenu
+    modCompileOnly("com.terraformersmc:modmenu:${modmenu_version}")
+    // YACL v3
+    modCompileOnly("dev.isxander:yacl3-fabric:${yacl_version}")
+
+    // Xaero’s Minimap + World Map (use one of Modrinth or CurseMaven coords)
+    // Prefer Modrinth:
+    modCompileOnly("maven.modrinth:xaeros-minimap:${xaero_minimap_version}")
+    modCompileOnly("maven.modrinth:xaeros-world-map:${xaero_worldmap_version}")
+    // If Modrinth versions aren’t available for your target, uncomment CurseMaven lines and set the file IDs:
+    // modCompileOnly("curse.maven:xaeros-minimap-263420:${xaero_minimap_fileId}")
+    // modCompileOnly("curse.maven:xaeros-world-map-317780:${xaero_worldmap_fileId}")
+
+    // For dev runs where you want them loaded at runtime too (not required in CI):
+    modRuntimeOnly("com.terraformersmc:modmenu:${modmenu_version}")
+    modRuntimeOnly("dev.isxander:yacl3-fabric:${yacl_version}")
+    modRuntimeOnly("maven.modrinth:xaeros-minimap:${xaero_minimap_version}")
+    modRuntimeOnly("maven.modrinth:xaeros-world-map:${xaero_worldmap_version}")
 }
 
 java {
@@ -30,8 +54,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 processResources {
-    // Collect every placeholder your fabric.mod.json might reference.
-    // Add/remove keys here if you introduce new placeholders later.
+    // All placeholders used in fabric.mod.json (and friends)
     def props = [
         version            : version,
         loader_version     : loader_version,
@@ -42,11 +65,6 @@ processResources {
         java_version       : java_version,
         maven_group        : maven_group
     ]
-
-    // Tell Gradle these affect task inputs (avoids the Gradle 10 deprecation warning).
     inputs.properties(props)
-
-    filesMatching("fabric.mod.json") {
-        expand(props)
-    }
+    filesMatching("fabric.mod.json") { expand(props) }
 }

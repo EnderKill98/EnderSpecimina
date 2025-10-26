@@ -5,64 +5,46 @@ plugins {
 version = project.mod_version
 group   = project.maven_group
 
+base {
+    archivesName = project.archives_base_name
+}
+
 repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
 
-    // Optional integrations (only used if versions are set)
-    maven { url = 'https://maven.terraformersmc.com/releases/' } // ModMenu
-    maven { url = 'https://maven.isxander.dev/releases' }        // YACL
-    maven { url = 'https://api.modrinth.com/maven' }             // Xaero (Modrinth)
-    maven { url = 'https://cursemaven.com' }                     // Xaero (fallback)
+    // Optional mods repos
+    maven { url = 'https://maven.terraformersmc.com/releases/' }  // ModMenu
+    maven { url = 'https://maven.isxander.dev/releases' }         // YACL
+    maven { url = 'https://api.modrinth.com/maven' }              // Modrinth (Xaero’s)
+    maven { url = 'https://cursemaven.com' }                      // Fallback for Xaero’s
 }
 
-// tiny helpers
-def hasProp = { String k -> project.hasProperty(k) && project.property(k)?.toString()?.trim() }
-def prop    = { String k, String d = "" -> (hasProp(k) ? project.property(k).toString() : d) }
-
 dependencies {
-    // Core
+    // ---- Core ----
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings  "net.fabricmc:yarn:${yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
-    // ---------- OPTIONAL INTEGRATIONS (only added if you set versions) ----------
+    // ---- Optional integrations (compileOnly so you can build against them) ----
     // ModMenu
-    if (hasProp('modmenu_version')) {
-        def v = prop('modmenu_version')
-        modCompileOnly "com.terraformersmc:modmenu:${v}"
-        modRuntimeOnly "com.terraformersmc:modmenu:${v}"
-    }
-
+    modCompileOnly("com.terraformersmc:modmenu:${modmenu_version}")
     // YACL v3
-    if (hasProp('yacl_version')) {
-        def v = prop('yacl_version')
-        modCompileOnly "dev.isxander:yacl3-fabric:${v}"
-        modRuntimeOnly "dev.isxander:yacl3-fabric:${v}"
-    }
+    modCompileOnly("dev.isxander:yacl3-fabric:${yacl_version}")
 
-    // Xaero’s (prefer Modrinth coords if provided)
-    if (hasProp('xaero_minimap_version')) {
-        def v = prop('xaero_minimap_version')
-        modCompileOnly "maven.modrinth:xaeros-minimap:${v}"
-        modRuntimeOnly "maven.modrinth:xaeros-minimap:${v}"
-    } else if (hasProp('xaero_minimap_fileId')) {
-        // CurseMaven: project id 263420
-        modCompileOnly "curse.maven:xaeros-minimap-263420:${prop('xaero_minimap_fileId')}"
-        modRuntimeOnly "curse.maven:xaeros-minimap-263420:${prop('xaero_minimap_fileId')}"
-    }
+    // Xaero’s Minimap + World Map (prefer Modrinth coords)
+    modCompileOnly("maven.modrinth:xaeros-minimap:${xaero_minimap_version}")
+    modCompileOnly("maven.modrinth:xaeros-world-map:${xaero_worldmap_version}")
+    // If Modrinth versions aren’t available, use CurseMaven fallback (uncomment & set file IDs):
+    // modCompileOnly("curse.maven:xaeros-minimap-263420:${xaero_minimap_fileId}")
+    // modCompileOnly("curse.maven:xaeros-world-map-317780:${xaero_worldmap_fileId}")
 
-    if (hasProp('xaero_worldmap_version')) {
-        def v = prop('xaero_worldmap_version')
-        modCompileOnly "maven.modrinth:xaeros-world-map:${v}"
-        modRuntimeOnly "maven.modrinth:xaeros-world-map:${v}"
-    } else if (hasProp('xaero_worldmap_fileId')) {
-        // CurseMaven: project id 317780
-        modCompileOnly "curse.maven:xaeros-world-map-317780:${prop('xaero_worldmap_fileId')}"
-        modRuntimeOnly "curse.maven:xaeros-world-map-317780:${prop('xaero_worldmap_fileId')}"
-    }
-    // ---------------------------------------------------------------------------
+    // ---- For dev runs where you want them loaded at runtime too (optional) ----
+    modRuntimeOnly("com.terraformersmc:modmenu:${modmenu_version}")
+    modRuntimeOnly("dev.isxander:yacl3-fabric:${yacl_version}")
+    modRuntimeOnly("maven.modrinth:xaeros-minimap:${xaero_minimap_version}")
+    modRuntimeOnly("maven.modrinth:xaeros-world-map:${xaero_worldmap_version}")
 }
 
 java {
@@ -74,24 +56,26 @@ tasks.withType(JavaCompile).configureEach {
     options.release = project.java_version as int
 }
 
-// Safe resource expansion: fill any placeholders in fabric.mod.json if present.
-// Missing ones default to empty string so Gradle won’t crash.
-processResources {
+// Use task registration API to avoid Gradle 10 deprecation
+tasks.named("processResources") {
     def props = [
-        version            : version,
-        loader_version     : prop('loader_version'),
-        minecraft_version  : prop('minecraft_version'),
-        fabric_api_version : prop('fabric_api_version'),
-        archives_base_name : prop('archives_base_name'),
-        mod_version        : prop('mod_version'),
-        java_version       : prop('java_version'),
-        maven_group        : prop('maven_group'),
-        // optional mod versions (only used if referenced in your fabric.mod.json)
-        modmenu_version         : prop('modmenu_version'),
-        yacl_version            : prop('yacl_version'),
-        xaero_minimap_version   : prop('xaero_minimap_version'),
-        xaero_worldmap_version  : prop('xaero_worldmap_version')
+        version            : project.version,
+        loader_version     : project.findProperty("loader_version"),
+        minecraft_version  : project.findProperty("minecraft_version"),
+        fabric_api_version : project.findProperty("fabric_api_version"),
+        archives_base_name : project.findProperty("archives_base_name"),
+        mod_version        : project.findProperty("mod_version"),
+        java_version       : project.findProperty("java_version"),
+        maven_group        : project.findProperty("maven_group")
     ]
+
+    // Fail fast if any placeholders are missing
+    props.each { k, v ->
+        if (v == null || v.toString().trim().isEmpty()) {
+            throw new GradleException("Missing gradle.properties entry for '${k}'")
+        }
+    }
+
     inputs.properties(props)
     filesMatching("fabric.mod.json") { expand(props) }
 }

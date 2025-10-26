@@ -1,24 +1,30 @@
 name: build
 
 on:
-  push:        { branches: [ "mc/1.21.5" ] }
-  pull_request:{ branches: [ "mc/1.21.5" ] }
+  push:
+    branches: [ "mc/1.21.5" ]
+  pull_request:
+    branches: [ "mc/1.21.5" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: gradle
-      - name: Gradle permissions
+
+      - name: Grant execute permission for Gradle
         run: chmod +x ./gradlew
+
       - name: Build
         run: ./gradlew --no-daemon --stacktrace --warning-mode all clean build
+
       - name: Upload jars
         uses: actions/upload-artifact@v4
         with:

@@ -12,21 +12,32 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Camera.class)
 public abstract class ScrollZoomCameraMixin {
 
-    @WrapOperation(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;clipToSpace(F)F"))
+    @WrapOperation(
+        method = "update",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;clipToSpace(F)F")
+    )
     public float clipToSpaceFromUpdate(Camera instance, float desiredCameraDistance, Operation<Float> original) {
-        if(!Mod.scrollZoom.isActive() || Mod.scrollZoom.zoomStep >= 0)
+        if (!Mod.scrollZoom.isActive() || Mod.scrollZoom.zoomStep >= 0) {
             return original.call(instance, desiredCameraDistance);
+        }
+
         float interpolatedExtraDist;
-        if(Mod.scrollZoom.previousTickZoomStep <= 1) {
+        if (Mod.scrollZoom.previousTickZoomStep <= 1) {
             double previousFactor = Mod.scrollZoom.getPreviousZoomMultiplierFactor();
-            if(Mod.scrollZoom.previousTickZoomStep == 1)
+            if (Mod.scrollZoom.previousTickZoomStep == 1) {
                 previousFactor = 0;
-            interpolatedExtraDist = (float) MathHelper.lerp(MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(true), -previousFactor, -Mod.scrollZoom.getZoomMultiplierFactor());
-        } else
+            }
+            // 1.21.5: use MinecraftClient.getInstance().getTickDelta()
+            interpolatedExtraDist = (float) MathHelper.lerp(
+                MinecraftClient.getInstance().getTickDelta(),
+                -previousFactor,
+                -Mod.scrollZoom.getZoomMultiplierFactor()
+            );
+        } else {
             interpolatedExtraDist = (float) -Mod.scrollZoom.getZoomMultiplierFactor();
-        //return instance.clipToSpace(desiredCameraDistance + interpolatedExtraDist);
+        }
+
         // Ignore walls. Huge distances could cause issues anyway
         return desiredCameraDistance + interpolatedExtraDist;
     }
-
 }

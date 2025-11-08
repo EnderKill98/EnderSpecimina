@@ -8,7 +8,7 @@
     "mods.xaerominimap.RenderMinimapMixin"
   ],
   "client": [
-    "FixBundlesMixin",
+    "FixBundlesPacketMixin",
     "FixGhostItemsMixin",
     "ScrollZoomCameraMixin",
     "ScrollZoomGameRendererMixin",

@@ -1,2 +1,3 @@
 accessWidener	v1	named
 accessible method net/minecraft/client/render/Camera clipToSpace (F)F
+accessible field net/minecraft/client/gui/hud/PlayerListHud header Lnet/minecraft/text/Text;

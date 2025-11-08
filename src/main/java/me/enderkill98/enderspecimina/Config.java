@@ -33,11 +33,24 @@ public class Config {
                 case Always -> { return true; }
                 case Only2b2t -> {
                     final ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
-                    if(networkHandler == null) return false;
-                    final ServerInfo serverInfo =networkHandler.getServerInfo();
-                    if(serverInfo == null || serverInfo.address == null) return false;
-                    final String addrLc = serverInfo.address.toLowerCase();
-                    return addrLc.equals("2b2t.org") || addrLc.endsWith(".2b2t.org");
+                    // Try to detect by typed address: (.*\.)2b2t\.org
+                    if(networkHandler != null) {
+                        final ServerInfo serverInfo = networkHandler.getServerInfo();
+                        if (serverInfo != null && serverInfo.address != null) {
+                            final String addrLc = serverInfo.address.toLowerCase();
+                            if(addrLc.equals("2b2t.org") || addrLc.endsWith(".2b2t.org"))
+                                return true;
+                        }
+                    }
+
+                    // Try to detect by header in tablist
+                    if(client.inGameHud != null && client.inGameHud.getPlayerListHud() != null &&
+                            client.inGameHud.getPlayerListHud().header != null && client.inGameHud.getPlayerListHud().header.getString().startsWith("2BUILDERS2TOOLS\n\n")) {
+                        return true;
+                    }
+
+                    // Not detected
+                    return false;
                 }
                 default -> { return false; }
             }

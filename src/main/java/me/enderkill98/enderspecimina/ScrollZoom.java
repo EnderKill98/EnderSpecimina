@@ -1,8 +1,11 @@
 package me.enderkill98.enderspecimina;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,6 +14,12 @@ public class ScrollZoom implements ClientTickEvents.StartTick {
 
     public int zoomStep = 1;
     public int previousTickZoomStep = 1;
+
+    final KeyBinding keybindModifer;
+
+    public ScrollZoom() {
+        keybindModifer = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.enderspecimina.scroll_zoom_modifier", InputUtil.Type.KEYSYM, -1, "category.enderspecimina.keybindings"));
+    }
 
     private boolean active = false;
     public void setActive(boolean active) {
@@ -25,12 +34,22 @@ public class ScrollZoom implements ClientTickEvents.StartTick {
         return active;
     }
 
+    public boolean isModifierHeld() {
+        Config.ScrollZoomModifier modifier = Config.HANDLER.instance().scrollZoomModifier;
+        return switch (modifier) {
+            case Alt -> Screen.hasAltDown() && !Screen.hasControlDown();
+            case Control -> !Screen.hasAltDown() && Screen.hasControlDown();
+            case AltAndControl -> Screen.hasAltDown() && Screen.hasControlDown();
+            case Keybind -> keybindModifer.isPressed();
+        };
+    }
+
     /**
      * @return Whether to cancel the scroll (not handle elsewhere)
      */
     public boolean onScroll(double vertical) {
         if(!Config.HANDLER.instance().scrollZoom) return false;
-        if(!Screen.hasAltDown() || Screen.hasControlDown()) return false;
+        if(!isModifierHeld()) return false;
         //if(Mod.INSTANCE.selection.isActive() && Mod.INSTANCE.selection.isHoldingWand(MinecraftClient.getInstance().player))
         //    return false; // Let Selection handle all scrolls!
 

@@ -96,6 +96,17 @@ public class ModMenuIntegration implements ModMenuApi {
                                         .controller(TickBoxControllerBuilder::create)
                                         .build()
                                 )
+                                .option(Option.<Config.ScrollZoomModifier>createBuilder()
+                                        .name(text("Scroll Zoom Modifier"))
+                                        .binding(Config.HANDLER.defaults().scrollZoomModifier, () -> Config.HANDLER.instance().scrollZoomModifier, (newVal) -> Config.HANDLER.instance().scrollZoomModifier = newVal)
+                                        .description(textOptDesc("""
+                                                The (modifier) key to hold down for ScrollZoom.
+                                                
+                                                If you specify "Keybind", you need to specify that inside Minecrafts Keybind Settings.
+                                                """))
+                                        .controller(opt -> EnumControllerBuilder.create(opt).enumClass(Config.ScrollZoomModifier.class))
+                                        .build()
+                                )
                                 .option(Option.<Boolean>createBuilder()
                                         .name(text("Highways"))
                                         .binding(Config.HANDLER.defaults().highwaysEnabled, () -> Config.HANDLER.instance().highwaysEnabled, (newVal) -> {

@@ -57,6 +57,21 @@ public class Config {
         }
     }
 
+    public static enum ScrollZoomModifier implements NameableEnum {
+        Alt,
+        Control,
+        AltAndControl,
+        Keybind;
+
+        @Override
+        public Text getDisplayName() {
+            return switch (this) {
+                case Keybind -> Text.literal("MC Keybind");
+                default -> Text.literal(this.name());
+            };
+        }
+    }
+
     public static ConfigClassHandler<Config> HANDLER = ConfigClassHandler.createBuilder(Config.class)
             .id(Identifier.of("enderspecimina", "config"))
                     .serializer(config -> GsonConfigSerializerBuilder.create(config)
@@ -70,6 +85,9 @@ public class Config {
     public ActivationPolicy fix2b2tGhostItems = ActivationPolicy.Only2b2t;
     @SerialEntry(comment = "Enable scroll zoom")
     public boolean scrollZoom = true;
+    @SerialEntry(comment = "Modifier to hold during zoom for scroll zoom")
+    public ScrollZoomModifier scrollZoomModifier = ScrollZoomModifier.Alt;
+
     @SerialEntry(comment = "Make bundles usable on 2b2t")
     public ActivationPolicy fix2b2tBundles = ActivationPolicy.Only2b2t;
 
@@ -80,5 +98,4 @@ public class Config {
 
     @SerialEntry(comment = "Specify an alternate url to source highway data from. Best keep empty.")
     public String highwaysOverwriteSourceUrl = "";
-
 }

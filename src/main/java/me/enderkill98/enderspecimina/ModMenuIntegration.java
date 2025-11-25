@@ -129,6 +129,21 @@ public class ModMenuIntegration implements ModMenuApi {
                                         .controller(TickBoxControllerBuilder::create)
                                         .build()
                                 )
+                                .option(Option.<Config.ActivationPolicy>createBuilder()
+                                        .name(text("Map IDs based on Name-Hashes"))
+                                        .binding(Config.HANDLER.defaults().mapIdNameHashes, () -> Config.HANDLER.instance().mapIdNameHashes, (newVal) -> Config.HANDLER.instance().mapIdNameHashes = newVal)
+                                        .description(textOptDesc("""
+                                                This changes the map ids for received packets to be based on the name of map, if has one.
+                                                
+                                                This combats 2b2t changing all the map ids, each time to something different when you rejoin. With his enabled, mods like Client Maps should actually work!
+                                                Only recommended on 2b2t. Any other server does not need this!
+                                                
+                                                This kinda modifies received packets (the resulting data). Care has been taken to not interfere with packet capture mods, but not extensively tested.
+                                                This §lmight cause issues§r with Replay Mod, Flashback, WorldTools and similar mods!
+                                                """))
+                                        .controller(opt -> EnumControllerBuilder.create(opt).enumClass(Config.ActivationPolicy.class))
+                                        .build()
+                                )
                                 .build())
                         .build()
                 )

@@ -1,3 +1,6 @@
 accessWidener	v1	named
 accessible method net/minecraft/client/render/Camera clipToSpace (F)F
 accessible field net/minecraft/client/gui/hud/PlayerListHud header Lnet/minecraft/text/Text;
+accessible field net/minecraft/client/world/ClientWorld mapStates Ljava/util/Map;
+accessible field net/minecraft/component/type/BundleContentsComponent stacks Ljava/util/List;
+accessible field net/minecraft/component/type/ContainerComponent stacks Lnet/minecraft/util/collection/DefaultedList;

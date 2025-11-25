@@ -98,4 +98,7 @@ public class Config {
 
     @SerialEntry(comment = "Specify an alternate url to source highway data from. Best keep empty.")
     public String highwaysOverwriteSourceUrl = "";
+
+    @SerialEntry(comment = "Remap map ids based on name")
+    public ActivationPolicy mapIdNameHashes = ActivationPolicy.Only2b2t;
 }

@@ -14,6 +14,7 @@ public class ScrollZoom implements ClientTickEvents.StartTick {
 
     public int zoomStep = 1;
     public int previousTickZoomStep = 1;
+    private boolean turnedOffChunkCulling = false;
 
     final KeyBinding keybindModifer;
 
@@ -23,9 +24,19 @@ public class ScrollZoom implements ClientTickEvents.StartTick {
 
     private boolean active = false;
     public void setActive(boolean active) {
-        if(!active) {
+        final MinecraftClient client = MinecraftClient.getInstance();
+        if(active) {
+            if(zoomStep < 0 && !turnedOffChunkCulling && client.chunkCullingEnabled) {
+                client.chunkCullingEnabled = false;
+                turnedOffChunkCulling = true;
+            }
+        }else {
             zoomStep = 1;
             previousTickZoomStep = 1;
+            if(turnedOffChunkCulling) {
+                client.chunkCullingEnabled = true;
+                turnedOffChunkCulling = false;
+            }
         }
         this.active = active;
     }

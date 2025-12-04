@@ -5,6 +5,7 @@ import com.google.common.collect.HashBiMap;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.enderkill98.enderspecimina.Config;
+import me.enderkill98.enderspecimina.Mod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientCommonNetworkHandler;
 import net.minecraft.client.network.ClientConnectionState;
@@ -15,6 +16,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.s2c.play.*;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,7 +32,7 @@ public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
 
     @Shadow public abstract void onMapUpdate(MapUpdateS2CPacket packet);
 
-    //@Unique private static final Logger LOGGER = Mod.getLoggerFor("me.enderkill98.enderspecimina.mixin", "MapIdNameHasherMixin");
+    @Unique private static final Logger LOGGER = Mod.getLoggerFor("me.enderkill98.enderspecimina.mixin", "MapIdNameHasherMixin");
 
     protected MapIdNameHasherMixin(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
         super(client, connection, connectionState);
@@ -76,8 +78,12 @@ public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
                 enderspecimina$mapping.put(mapId.id(), mappedMapId);
                 if (client.world.getMapState(new MapIdComponent(mappedMapId)) == null && client.world.getMapState(mapId) != null) {
                     // Swap stored map id
-                    client.world.putClientsideMapState(new MapIdComponent(mappedMapId), client.world.getMapState(mapId));
-                    client.world.mapStates.remove(mapId);
+                    try {
+                        client.world.putClientsideMapState(new MapIdComponent(mappedMapId), client.world.getMapState(mapId));
+                        client.world.mapStates.remove(mapId);
+                    }catch (Exception ex) {
+                        LOGGER.error("Caught an exception trying to swap existing clientside mapState {} for new mapped one {}. This might be an EnderSpecimina and/or EvMod (compatibility) bug!", mapId, mappedMapId, ex);
+                    }
                     //LOGGER.info("Moved local mapstate for ID {} to {} after encountering named map item.", mapId.id(), mappedMapId);
                 }
             }else {
@@ -87,7 +93,11 @@ public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
                 // Already seen a map by this name, but this has a different original id. Not remapping this one and re-adding og id!
                 if (client.world.getMapState(new MapIdComponent(mappedMapId)) == null && client.world.getMapState(new MapIdComponent(firstMappedId)) != null) {
                     // Restore mapstate for original map (copy)
-                    client.world.putClientsideMapState(new MapIdComponent(mappedMapId), client.world.getMapState(new MapIdComponent(firstMappedId)));
+                    try {
+                        client.world.putClientsideMapState(new MapIdComponent(mappedMapId), client.world.getMapState(new MapIdComponent(firstMappedId)));
+                    }catch (Exception ex) {
+                        LOGGER.error("Caught an exception trying to copy existing clientside mapState of {} to {} due to map with same Id but different name found. This might be an EnderSpecimina and/or EvMod (compatibility) bug!", firstMappedId, mappedMapId, ex);
+                    }
                     //LOGGER.info("Copied mapstate of original map id {} from first mapped id {} to new mapped id {}", mapId.id(), firstMappedId, mappedMapId);
                 }
                 //return; // Don't change
@@ -148,8 +158,13 @@ public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
                 enderspecimina$skipOnMapUpdate = true; // Prevent recursion
                 HashSet<Integer> additionals = enderspecimina$mappingAdditional.get(origMapId.id());
                 //LOGGER.info("Also applying update of MapId {} to {}", origMapId.id(), StringUtil.joinCommaSeparated(additionals.stream()));
-                for(int addMapId : additionals)
-                    this.onMapUpdate(new MapUpdateS2CPacket(new MapIdComponent(addMapId), instance.scale(), instance.locked(), instance.decorations(), instance.updateData()));
+                for(int addMapId : additionals) {
+                    try {
+                        this.onMapUpdate(new MapUpdateS2CPacket(new MapIdComponent(addMapId), instance.scale(), instance.locked(), instance.decorations(), instance.updateData()));
+                    }catch (Exception ex) {
+                        LOGGER.error("Caught exception when copying existing clientside mapState of {} to mapId {}.", origMapId.id(), addMapId, ex);
+                    }
+                }
                 enderspecimina$skipOnMapUpdate = false;
             }
             //LOGGER.info("Pretended update of MapId {} was for {}", origMapId.id(), mapping.get(origMapId.id()));

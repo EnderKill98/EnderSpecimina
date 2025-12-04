@@ -101,4 +101,6 @@ public class Config {
 
     @SerialEntry(comment = "Remap map ids based on name")
     public ActivationPolicy mapIdNameHashes = ActivationPolicy.Only2b2t;
+    @SerialEntry(comment = "Enable debug logging of actions done by map id name hasher")
+    public boolean mapIdNameHashesDebug = false;
 }

@@ -26,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 @Mixin(value = ClientPlayNetworkHandler.class, priority = 900) // Hopefully prevent breaking any packet loggers
 public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
@@ -84,12 +85,14 @@ public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
                     }catch (Exception ex) {
                         LOGGER.error("Caught an exception trying to swap existing clientside mapState {} for new mapped one {}. This might be an EnderSpecimina and/or EvMod (compatibility) bug!", mapId, mappedMapId, ex);
                     }
-                    //LOGGER.info("Moved local mapstate for ID {} to {} after encountering named map item.", mapId.id(), mappedMapId);
+                    if(Config.HANDLER.instance().mapIdNameHashesDebug)
+                        LOGGER.info("Moved local mapstate for ID {} to {} after encountering named map item.", mapId.id(), mappedMapId);
                 }
             }else {
-                //boolean added = mappingAdditional.computeIfAbsent(mapId.id(), k -> new HashSet<>()).add(mappedMapId);
+                boolean added = enderspecimina$mappingAdditional.computeIfAbsent(mapId.id(), k -> new HashSet<>()).add(mappedMapId);
                 int firstMappedId = enderspecimina$mapping.get(mapId.id());
-                //if(added) LOGGER.info("Detected duplicate mapped id for {} (first got mapped to {}). Remembering as duplicate mapping (to {})", mapId.id(), firstMappedId, mappedMapId);
+                if(added && Config.HANDLER.instance().mapIdNameHashesDebug)
+                    LOGGER.info("Detected duplicate mapped id for {} (first got mapped to {}). Remembering as duplicate mapping (to {})", mapId.id(), firstMappedId, mappedMapId);
                 // Already seen a map by this name, but this has a different original id. Not remapping this one and re-adding og id!
                 if (client.world.getMapState(new MapIdComponent(mappedMapId)) == null && client.world.getMapState(new MapIdComponent(firstMappedId)) != null) {
                     // Restore mapstate for original map (copy)
@@ -98,7 +101,8 @@ public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
                     }catch (Exception ex) {
                         LOGGER.error("Caught an exception trying to copy existing clientside mapState of {} to {} due to map with same Id but different name found. This might be an EnderSpecimina and/or EvMod (compatibility) bug!", firstMappedId, mappedMapId, ex);
                     }
-                    //LOGGER.info("Copied mapstate of original map id {} from first mapped id {} to new mapped id {}", mapId.id(), firstMappedId, mappedMapId);
+                    if(Config.HANDLER.instance().mapIdNameHashesDebug)
+                        LOGGER.info("Copied mapstate of original map id {} from first mapped id {} to new mapped id {}", mapId.id(), firstMappedId, mappedMapId);
                 }
                 //return; // Don't change
             }
@@ -157,7 +161,8 @@ public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
                 // Repeat for additionals (same map id, but different name) first. TODO: Do not disconnect both mapstates
                 enderspecimina$skipOnMapUpdate = true; // Prevent recursion
                 HashSet<Integer> additionals = enderspecimina$mappingAdditional.get(origMapId.id());
-                //LOGGER.info("Also applying update of MapId {} to {}", origMapId.id(), StringUtil.joinCommaSeparated(additionals.stream()));
+                if(Config.HANDLER.instance().mapIdNameHashesDebug)
+                    LOGGER.info("Also applying update of MapId {} to {}", origMapId.id(), additionals.stream().map(id -> "" + id).collect(Collectors.joining(", ")));
                 for(int addMapId : additionals) {
                     try {
                         this.onMapUpdate(new MapUpdateS2CPacket(new MapIdComponent(addMapId), instance.scale(), instance.locked(), instance.decorations(), instance.updateData()));
@@ -167,7 +172,8 @@ public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
                 }
                 enderspecimina$skipOnMapUpdate = false;
             }
-            //LOGGER.info("Pretended update of MapId {} was for {}", origMapId.id(), mapping.get(origMapId.id()));
+            if(Config.HANDLER.instance().mapIdNameHashesDebug)
+                LOGGER.info("Pretended update of MapId {} was for {}", origMapId.id(), enderspecimina$mapping.get(origMapId.id()));
             return new MapIdComponent(enderspecimina$mapping.get(origMapId.id()));
         }
         return origMapId;

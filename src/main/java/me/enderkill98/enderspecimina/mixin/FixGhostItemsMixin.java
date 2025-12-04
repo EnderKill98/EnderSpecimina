@@ -3,6 +3,7 @@ package me.enderkill98.enderspecimina.mixin;
 import me.enderkill98.enderspecimina.Config;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.item.BannerItem;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
@@ -26,7 +27,7 @@ public class FixGhostItemsMixin<T extends ScreenHandler> {
         if(client.player != null && client.player.isCreative()) return; // Breaks creative middle-click drag (on other servers)
         ItemStack cursorStack = handler.getCursorStack();
         if(cursorStack == null || handler.getCursorStack().isEmpty()) return;
-        if(!cursorStack.isStackable() || cursorStack.getItem() instanceof FilledMapItem)
+        if(!cursorStack.isStackable() || cursorStack.getItem() instanceof FilledMapItem || cursorStack.getItem() instanceof BannerItem)
             cir.setReturnValue(true); // Prevent initiating a drag
     }
 

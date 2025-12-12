@@ -27,8 +27,19 @@ public abstract class FixBundlesPacketMixin extends ClientCommonNetworkHandler {
     }
 
     @Unique private void enderspecimina$fixBundle(ItemStack stack) {
-        if(stack == null || stack.isEmpty() || !stack.contains(DataComponentTypes.BUNDLE_CONTENTS)) return; // Not applicable
+        if(stack == null || stack.isEmpty()) return; // Not applicable
         if (!Config.HANDLER.instance().fix2b2tBundles.isActive(client)) return; // Not enabled
+
+        // Recurse container type items
+        if(stack.contains(DataComponentTypes.BUNDLE_CONTENTS)) {
+            //LOGGER.info("Fixing bundle contents");
+            stack.get(DataComponentTypes.BUNDLE_CONTENTS).stacks.forEach(this::enderspecimina$fixBundle); // stream() returns copied Stacks
+        }else if(stack.contains(DataComponentTypes.CONTAINER)) {
+            //LOGGER.info("Fixing container contents");
+            stack.get(DataComponentTypes.CONTAINER).stacks.forEach(this::enderspecimina$fixBundle); // stream() returns copied Stacks
+        }
+
+        if(!stack.contains(DataComponentTypes.BUNDLE_CONTENTS)) return; // Not a bundle
         BundleContentsComponent contents = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
         stack.set(DataComponentTypes.BUNDLE_CONTENTS, new BundleContentsComponent(contents.stream().toList().reversed()));
     }

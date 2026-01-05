@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "me.enderkill98.enderspecimina.MixinPlugin",
   "mixins": [
-    "mods.xaerominimap.RenderMinimapMixin"
   ],
   "client": [
     "FixBundlesPacketMixin",
@@ -14,9 +13,7 @@
     "MapIdNameHasherMixin",
     "ScrollZoomCameraMixin",
     "ScrollZoomGameRendererMixin",
-    "ScrollZoomMouseMixin",
-    "mods.xaeroworldmap.HighwayHoverTooltipMixin",
-    "mods.xaeroworldmap.RenderWorldMapMixin"
+    "ScrollZoomMouseMixin"
   ],
   "injectors": {
     "defaultRequire": 1

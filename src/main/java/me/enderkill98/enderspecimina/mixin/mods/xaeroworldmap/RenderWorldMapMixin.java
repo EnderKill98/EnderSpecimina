@@ -55,6 +55,6 @@ public class RenderWorldMapMixin extends ScreenBase {
 
         final RenderManager.MapInfo mapInfo = new RenderManager.MapInfo(RenderManager.MapType.Worldmap, mapWorld, leftBorder, topBorder, rightBorder, bottomBorder);
 
-        RenderManager.renderMap(client, guiGraphics, textRenderer, matrixStack, renderTypeBuffers, lineBufferBuilder, scale, cameraX, cameraZ, client.getRenderTickCounter().getTickDelta(true), mapInfo);
+        RenderManager.renderMap(client, guiGraphics, textRenderer, matrixStack, renderTypeBuffers, lineBufferBuilder, scale, cameraX, cameraZ, client.getRenderTickCounter().getTickProgress(true), mapInfo);
     }
 }

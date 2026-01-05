@@ -21,7 +21,7 @@ public abstract class ScrollZoomCameraMixin {
             double previousFactor = Mod.scrollZoom.getPreviousZoomMultiplierFactor();
             if(Mod.scrollZoom.previousTickZoomStep == 1)
                 previousFactor = 0;
-            interpolatedExtraDist = (float) MathHelper.lerp(MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(true), -previousFactor, -Mod.scrollZoom.getZoomMultiplierFactor());
+            interpolatedExtraDist = (float) MathHelper.lerp(MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true), -previousFactor, -Mod.scrollZoom.getZoomMultiplierFactor());
         } else
             interpolatedExtraDist = (float) -Mod.scrollZoom.getZoomMultiplierFactor();
         //return instance.clipToSpace(desiredCameraDistance + interpolatedExtraDist);

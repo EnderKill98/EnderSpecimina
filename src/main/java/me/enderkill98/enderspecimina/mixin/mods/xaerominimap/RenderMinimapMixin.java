@@ -45,7 +45,7 @@ public class RenderMinimapMixin {
 
         final RenderManager.MapInfo mapInfo = new RenderManager.MapInfo(RenderManager.MapType.Minimap, mapWorld, xFloored - radiusBlocks, zFloored - radiusBlocks, xFloored + radiusBlocks, zFloored + radiusBlocks);
 
-        RenderManager.renderMap(client, guiGraphics, null, matrixStack, renderTypeBuffers, lineBufferBuilder, mapDimensionScale, (double) xFloored, (double) zFloored, client.getRenderTickCounter().getTickDelta(true), mapInfo);
+        RenderManager.renderMap(client, guiGraphics, null, matrixStack, renderTypeBuffers, lineBufferBuilder, mapDimensionScale, (double) xFloored, (double) zFloored, client.getRenderTickCounter().getTickProgress(true), mapInfo);
     }
 
 }

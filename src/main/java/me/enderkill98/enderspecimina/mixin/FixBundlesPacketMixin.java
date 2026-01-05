@@ -47,8 +47,8 @@ public abstract class FixBundlesPacketMixin extends ClientCommonNetworkHandler {
     @Inject(method = "onInventory", at = @At("HEAD"))
     public void onInventory(InventoryS2CPacket packet, CallbackInfo info) {
         if(client.isOnThread()) {
-            packet.getContents().forEach(this::enderspecimina$fixBundle);
-            enderspecimina$fixBundle(packet.getCursorStack());
+            packet.contents().forEach(this::enderspecimina$fixBundle);
+            enderspecimina$fixBundle(packet.cursorStack());
         }
     }
 

@@ -113,8 +113,8 @@ public abstract class MapIdNameHasherMixin extends ClientCommonNetworkHandler {
     @Inject(method = "onInventory", at = @At("HEAD"))
     public void onInventory(InventoryS2CPacket packet, CallbackInfo info) {
         if(client.isOnThread()) {
-            packet.getContents().forEach(this::enderspecimina$fixMap);
-            enderspecimina$fixMap(packet.getCursorStack());
+            packet.contents().forEach(this::enderspecimina$fixMap);
+            enderspecimina$fixMap(packet.cursorStack());
         }
     }
 

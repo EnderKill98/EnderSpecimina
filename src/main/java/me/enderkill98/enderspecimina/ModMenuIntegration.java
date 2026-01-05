@@ -151,6 +151,25 @@ public class ModMenuIntegration implements ModMenuApi {
                                         .controller(TickBoxControllerBuilder::create)
                                         .build()
                                 )
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(text("ItemFrame Keeper"))
+                                        .binding(Config.HANDLER.defaults().itemFrameKeeper, () -> Config.HANDLER.instance().itemFrameKeeper, (newVal) -> {
+                                            Config.HANDLER.instance().itemFrameKeeper = newVal;
+                                            Mod.itemFrameKeeper.onSetActive(newVal);
+                                        })
+                                        .description(textOptDesc("""
+                                                Prevents ItemFrames from being despawned by the server until a certain distance to them is reached.
+                                                """))
+                                        .controller(TickBoxControllerBuilder::create)
+                                        .build()
+                                )
+                                .option(Option.<Integer>createBuilder()
+                                        .name(text("ItemFrame Keeper Radius"))
+                                        .binding(Config.HANDLER.defaults().itemFrameKeeperRadius, () -> Config.HANDLER.instance().itemFrameKeeperRadius, (newVal) -> Config.HANDLER.instance().itemFrameKeeperRadius = newVal)
+                                        .description(textOptDesc("The new radius in which to preserve item frames."))
+                                        .controller((opts) -> IntegerFieldControllerBuilder.create(opts).min(32).max(2048))
+                                        .build()
+                                )
                                 .build())
                         .build()
                 )

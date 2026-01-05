@@ -14,6 +14,7 @@ public class Mod implements ClientModInitializer {
 
     public static ScrollZoom scrollZoom;
     public static HighwayVisualizer highwayVisualizer;
+    public static ItemFrameKeeper itemFrameKeeper;
 
     @Override
     public void onInitializeClient() {
@@ -21,9 +22,14 @@ public class Mod implements ClientModInitializer {
 
         scrollZoom = new ScrollZoom();
         ClientTickEvents.START_CLIENT_TICK.register(scrollZoom);
+
         highwayVisualizer = new HighwayVisualizer();
         ClientTickEvents.END_CLIENT_TICK.register(highwayVisualizer);
         highwayVisualizer.setActive(Config.HANDLER.instance().highwaysEnabled);
+
+        itemFrameKeeper = new ItemFrameKeeper();
+        ClientTickEvents.END_CLIENT_TICK.register(itemFrameKeeper);
+        itemFrameKeeper.onSetActive(Config.HANDLER.instance().itemFrameKeeper);
     }
 
     public static Logger getLoggerFor(Class<?> clazz) {

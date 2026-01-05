@@ -10,6 +10,7 @@
   "client": [
     "FixBundlesPacketMixin",
     "FixGhostItemsMixin",
+    "ItemFrameKeeperMixin",
     "MapIdNameHasherMixin",
     "ScrollZoomCameraMixin",
     "ScrollZoomGameRendererMixin",

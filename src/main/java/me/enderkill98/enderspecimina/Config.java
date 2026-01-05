@@ -103,4 +103,10 @@ public class Config {
     public ActivationPolicy mapIdNameHashes = ActivationPolicy.Only2b2t;
     @SerialEntry(comment = "Enable debug logging of actions done by map id name hasher")
     public boolean mapIdNameHashesDebug = false;
+
+    @SerialEntry(comment = "Preserve ItemFrames beyond the server distance")
+    public boolean itemFrameKeeper = false;
+    @SerialEntry(comment = "Radius in which to preserve ItemFrames for")
+    public int itemFrameKeeperRadius = 512;
+
 }
